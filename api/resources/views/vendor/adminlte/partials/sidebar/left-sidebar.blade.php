@@ -10,17 +10,29 @@
     {{-- Sidebar menu --}}
     <div class="sidebar">
         <nav class="pt-2">
-            <ul class="nav nav-pills nav-sidebar flex-column {{ config('adminlte.classes_sidebar_nav', '') }}"
-                data-widget="treeview" role="menu"
-                @if(config('adminlte.sidebar_nav_animation_speed') != 300)
-                    data-animation-speed="{{ config('adminlte.sidebar_nav_animation_speed') }}"
-                @endif
-                @if(!config('adminlte.sidebar_nav_accordion'))
-                    data-accordion="false"
-                @endif>
-                {{-- Configured sidebar links --}}
-                @each('adminlte::partials.sidebar.menu-item', $adminlte->menu('sidebar'), 'item')
-            </ul>
+        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+            {{-- Ítem Autores --}}
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="nav-icon fas fa-user"></i>
+                    <p>Autores</p>
+                </a>
+            </li>
+            {{-- Ítem Editoriales --}}
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="nav-icon fas fa-building"></i>
+                    <p>Editoriales</p>
+                </a>
+            </li>
+            {{-- Ítem Mangas --}}
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="nav-icon fas fa-book"></i>
+                    <p>Mangas</p>
+                </a>
+            </li>
+        </ul>  
         </nav>
     </div>
 

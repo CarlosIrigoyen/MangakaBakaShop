@@ -152,6 +152,23 @@ return [
     | https://github.com/jeroennoten/Laravel-AdminLTE/wiki/Layout-and-Styling-Configuration
     |
     */
+    'menu' => [
+    [
+        'text' => 'Autores',
+        'url'  => '#',
+        'icon' => 'fas fa-user',
+    ],
+    [
+        'text' => 'Editoriales',
+        'url'  => '#',
+        'icon' => 'fas fa-building',
+    ],
+    [
+        'text' => 'Mangas',
+        'url'  => '#',
+        'icon' => 'fas fa-book',
+    ],
+],
 
     'layout_topnav' => null,
     'layout_boxed' => null,
