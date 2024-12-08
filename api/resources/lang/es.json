@@ -59,6 +59,7 @@
     "Current Password": "Contraseña actual",
     "New Password": "Nueva contraseña",
     "Confirm Password": "Confirmar contraseña",
+    "Manage Account":" ",
     "Save": "Guardar",
     "You have not enabled two factor authentication.": "No has habilitado la autenticación de dos factores.",
     "When two factor authentication is enabled, you will be prompted for a secure, random token during authentication. You may retrieve this token from your phone's Google Authenticator application.": "Cuando se habilita la autenticación de dos factores, se te pedirá un token seguro y aleatorio durante la autenticación. Puedes obtener este token de la aplicación Google Authenticator de tu teléfono.",
