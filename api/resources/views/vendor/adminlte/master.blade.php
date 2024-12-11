@@ -65,6 +65,52 @@
     {{-- Custom Stylesheets (post AdminLTE) --}}
     @yield('adminlte_css')
 
+    {{-- Custom Styles for form controls --}}
+    <style>
+        /* Asegura que el fondo y el texto siempre sean blanco y negro */
+        .form-control {
+            background-color: #ffffff !important; /* Fondo blanco */
+            color: #000000 !important;             /* Texto negro */
+            border-color: #ced4da !important;      /* Borde gris claro */
+        }
+
+        .form-control:focus {
+            background-color: #ffffff !important; /* Fondo blanco cuando el campo está enfocado */
+            color: #000000 !important;             /* Texto negro cuando el campo está enfocado */
+            border-color: #80bdff !important;      /* Borde azul claro cuando el campo está enfocado */
+            box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25); /* Sombra azul claro */
+        }
+
+        /* Estilos para el autocompletado en modo oscuro */
+        .dark-mode input:-webkit-autofill, 
+        .dark-mode input:-webkit-autofill:focus, 
+        .dark-mode input:-webkit-autofill:hover, 
+        .dark-mode select:-webkit-autofill, 
+        .dark-mode select:-webkit-autofill:focus, 
+        .dark-mode select:-webkit-autofill:hover, 
+        .dark-mode textarea:-webkit-autofill, 
+        .dark-mode textarea:-webkit-autofill:focus, 
+        .dark-mode textarea:-webkit-autofill:hover {
+            -webkit-text-fill-color: #000000 !important; /* Asegura que el texto esté siempre en negro */
+            background-color: #fef9e4 !important; /* Fondo claro para campos autofill */
+            border-color: #ced4da !important; /* Asegura el borde gris claro */
+        }
+
+        /* Para los campos password */
+        .form-control[type="password"] {
+            background-color: #ffffff !important; /* Fondo blanco */
+            color: #000000 !important;             /* Texto negro */
+            border-color: #ced4da !important;      /* Borde gris claro */
+        }
+
+        .form-control[type="password"]:focus {
+            background-color: #ffffff !important; /* Fondo blanco cuando el campo de password está enfocado */
+            color: #000000 !important;             /* Texto negro cuando el campo de password está enfocado */
+            border-color: #80bdff !important;      /* Borde azul claro cuando el campo de password está enfocado */
+            box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25); /* Sombra azul claro */
+        }
+    </style>
+
     {{-- Favicon --}}
     @if(config('adminlte.use_ico_only'))
         <link rel="shortcut icon" href="{{ asset('favicons/favicon.ico') }}" />
@@ -90,7 +136,7 @@
 
 </head>
 
-<body class="@yield('classes_body')" @yield('body_data')>
+<body class="dark-mode @yield('classes_body')" @yield('body_data')>
 
     {{-- Body Content --}}
     @yield('body')
