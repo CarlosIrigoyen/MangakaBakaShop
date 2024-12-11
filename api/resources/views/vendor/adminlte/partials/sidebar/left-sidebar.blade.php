@@ -25,6 +25,13 @@
                     <p>Editoriales</p>
                 </a>
             </li>
+            {{-- Ítem Categorías --}}
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="nav-icon fas fa-tags"></i>
+                    <p>Categorías</p>
+                </a>
+            </li>
             {{-- Ítem Mangas --}}
             <li class="nav-item">
                 <a href="#" class="nav-link">
