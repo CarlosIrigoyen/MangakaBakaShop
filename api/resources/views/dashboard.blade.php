@@ -8,6 +8,15 @@
 
 @section('content')
     <p>Bienvenido administrador</p>
+
+    <!-- Aquí añades tu contenedor después del mensaje -->
+    <div class="container">
+        <!-- Puedes agregar aquí el contenido que desees dentro del contenedor -->
+        <div class="row">
+            <div class="col">
+            </div>
+        </div>
+    </div>
 @stop
 
 @section('css')

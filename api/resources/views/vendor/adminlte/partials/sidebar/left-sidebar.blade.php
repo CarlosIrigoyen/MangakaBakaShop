@@ -13,10 +13,10 @@
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
             {{-- Ítem Autores --}}
             <li class="nav-item">
-                <a href="#" class="nav-link">
-                    <i class="nav-icon fas fa-user"></i>
-                    <p>Autores</p>
-                </a>
+            <a href="{{ route('autores.index') }}" class="nav-link">
+                <i class="nav-icon fas fa-user"></i>
+                <p>Autores</p>
+            </a>
             </li>
             {{-- Ítem Editoriales --}}
             <li class="nav-item">
