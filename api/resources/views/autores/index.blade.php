@@ -39,10 +39,16 @@
 @stop
 
 @section('css')
-    <!-- Incluir el CSS de DataTables desde CDN -->
+    <!-- Cargar CSS de DataTables anticipadamente para evitar parpadeos -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.bootstrap5.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/3.0.3/css/responsive.bootstrap5.css">
+    <!-- Para evitar que la tabla se muestre antes de ser cargada -->
+    <style>
+        #autoresTable {
+            visibility: hidden;
+        }
+    </style>
 @stop
 
 @section('js')
@@ -57,11 +63,22 @@
     <!-- Inicializar DataTables en la tabla -->
     <script>
         $(document).ready(function() {
+            // Inicializa DataTables después de que todo el contenido esté cargado
             $('#autoresTable').DataTable({
-                "pageLength": 10, // Cambia este número al total de registros que deseas mostrar
                 "responsive": true, // Habilitar la funcionalidad responsive
                 "autoWidth": false,
+                "language": {
+                    "lengthMenu": "Mostrar _MENU_ registros por página",
+                    "zeroRecords": "No se encontraron resultados",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+                    "infoEmpty": "Mostrando 0 a 0 de 0 registros",
+                    "infoFiltered": "(filtrado de _MAX_ registros totales)",
+                    "search": "Buscar:"
+                }
             });
+
+            // Hacer visible la tabla después de que DataTables se haya inicializado
+            $('#autoresTable').css('visibility', 'visible');
         });
     </script>
 @stop
