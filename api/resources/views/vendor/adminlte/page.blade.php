@@ -7,6 +7,8 @@
     @stack('css')
     @yield('css')
 @stop
+@section('estilos')
+@endsection
 
 @section('classes_body', $layoutHelper->makeBodyClasses())
 
@@ -56,3 +58,6 @@
     @stack('js')
     @yield('js')
 @stop
+
+@section('javascript')
+@endsection
