@@ -9,16 +9,19 @@
 @section('content')
     <p>Bienvenido administrador</p>
 
-    <!-- Aquí añades tu contenedor después del mensaje -->
+    <!-- Contenedor con el Card de Bootstrap -->
     <div class="container">
-        <!-- Agregar una fila con la tabla -->
-        <div class="row">
-            <div class="col">
+        <!-- Card con la tabla de autores -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <a href="#" class="btn btn-primary">Crear Autor</a>
+            </div>
+            <div class="card-body">
                 <!-- Tabla con ID para aplicar DataTables -->
                 <table id="autoresTable" class="table table-bordered table-hover dataTable dtr-inline">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th>#</th>
                             <th>Nombre</th>
                             <th>Apellido</th>
                         </tr>
