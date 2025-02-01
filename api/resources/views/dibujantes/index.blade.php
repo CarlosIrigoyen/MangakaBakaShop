@@ -1,20 +1,20 @@
 @extends('adminlte::page')
 
-@section('title', 'Listado de Autores')
+@section('title', 'Listado de Dibujantes')
 
 @section('content_header')
-    <h1>Listado de Autores</h1>
+    <h1>Listado de Dibujantes</h1>
 @stop
 
 @section('content')
     <!-- Contenedor con el Card de Bootstrap -->
     <div class="container">
-        <!-- Card con la tabla de autores -->
+        <!-- Card con la tabla de dibujantes -->
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <!-- Botón para crear autor -->
+                <!-- Botón para crear dibujante -->
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalCrear">
-                    Crear Autor
+                    Crear Dibujante
                 </button>
             </div>
             <div class="card-body">
@@ -29,20 +29,20 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($autores as $autor)
+                        @foreach($dibujantes as $dibujante)
                             <tr>
-                                <td>{{ $autor->id }}</td>
-                                <td>{{ $autor->nombre }}</td>
-                                <td>{{ $autor->apellido }}</td>
+                                <td>{{ $dibujante->id }}</td>
+                                <td>{{ $dibujante->nombre }}</td>
+                                <td>{{ $dibujante->apellido }}</td>
                                 <td class="text-center">
-                                    <!-- Icono para editar autor -->
-                                    <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalEditar" onclick="editarAutor({{ $autor->id }})">
+                                    <!-- Icono para editar dibujante -->
+                                    <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalEditar" onclick="editarDibujante({{ $dibujante->id }})">
                                         <i class="fas fa-pen"></i> <!-- Icono de pluma -->
                                     </button>
                                     <!-- Espacio entre los iconos -->
                                     <span class="mx-2"></span>
-                                    <!-- Icono para eliminar autor -->
-                                    <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#modalEliminar" onclick="configurarEliminar({{ $autor->id }})">
+                                    <!-- Icono para eliminar dibujante -->
+                                    <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#modalEliminar" onclick="configurarEliminar({{ $dibujante->id }})">
                                         <i class="fas fa-trash-alt"></i> <!-- Icono de tacho -->
                                     </button>
                                 </td>
@@ -54,16 +54,16 @@
         </div>
     </div>
 
-    <!-- Modal para eliminar autor -->
+    <!-- Modal para eliminar dibujante -->
     <div class="modal fade" id="modalEliminar" tabindex="-1" aria-labelledby="modalEliminarLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalEliminarLabel">Eliminar Autor</h5>
+                    <h5 class="modal-title" id="modalEliminarLabel">Eliminar Dibujante</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    ¿Estás seguro de que deseas eliminar este autor?
+                    ¿Estás seguro de que deseas eliminar este dibujante?
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -77,12 +77,12 @@
         </div>
     </div>
 
-    <!-- Modal para editar autor -->
+    <!-- Modal para editar dibujante -->
     <div class="modal fade" id="modalEditar" tabindex="-1" aria-labelledby="modalEditarLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalEditarLabel">Editar Autor</h5>
+                    <h5 class="modal-title" id="modalEditarLabel">Editar Dibujante</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -109,17 +109,17 @@
         </div>
     </div>
 
-    <!-- Modal para crear autor -->
+    <!-- Modal para crear dibujante -->
     <div class="modal fade" id="modalCrear" tabindex="-1" aria-labelledby="modalCrearLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalCrearLabel">Crear Autor</h5>
+                    <h5 class="modal-title" id="modalCrearLabel">Crear Dibujante</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <!-- Formulario para crear un nuevo autor -->
-                    <form id="formCrear" action="{{ route('autores.store') }}" method="POST">
+                    <!-- Formulario para crear un nuevo dibujante -->
+                    <form id="formCrear" action="{{ route('dibujantes.store') }}" method="POST">
                         @csrf
                         <div class="mb-3">
                             <label for="nombre" class="form-label">Nombre</label>
@@ -131,7 +131,7 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn btn-primary">Crear Autor</button>
+                            <button type="submit" class="btn btn-primary">Crear Dibujante</button>
                         </div>
                     </form>
                 </div>
@@ -148,7 +148,7 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/3.0.3/css/responsive.bootstrap5.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"> <!-- FontAwesome para los iconos -->
     <style>
-        #autoresTable {
+        #dibujantesTable {
             visibility: hidden;
         }
     </style>
@@ -161,40 +161,41 @@
     <script src="https://cdn.datatables.net/2.1.8/js/dataTables.bootstrap5.js"></script>
     <script src="https://cdn.datatables.net/responsive/3.0.3/js/dataTables.responsive.js"></script>
     <script src="https://cdn.datatables.net/responsive/3.0.3/js/responsive.bootstrap5.js"></script>
+
     <script>
         $(document).ready(function() {
-    // Inicializa DataTables
-        $('#Contenido').DataTable({
-            "responsive": true,
-            "autoWidth": false,
-            "language": {
-            "lengthMenu": "Mostrar _MENU_ registros por página",
-            "zeroRecords": "No se encontraron resultados",
-            "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
-            "infoEmpty": "Mostrando 0 a 0 de 0 registros",
-            "infoFiltered": "(filtrado de _MAX_ registros totales)",
-            "search": "Buscar:"
-        }
-    });
-    $('#Contenido').css('visibility', 'visible');
-});
+            // Inicializa DataTables
+            $('#Contenido').DataTable({
+                "responsive": true,
+                "autoWidth": false,
+                "language": {
+                    "lengthMenu": "Mostrar _MENU_ registros por página",
+                    "zeroRecords": "No se encontraron resultados",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+                    "infoEmpty": "Mostrando 0 a 0 de 0 registros",
+                    "infoFiltered": "(filtrado de _MAX_ registros totales)",
+                    "search": "Buscar:",
+                }
+            });
+            $('#dibujantesTable').css('visibility', 'visible');
+        });
 
-        // Función para editar autor
-        function editarAutor(id) {
+        // Función para editar dibujante
+        function editarDibujante(id) {
             $.ajax({
-                url: '/autores/' + id + '/edit',
+                url: '/dibujantes/' + id + '/edit',
                 method: 'GET',
                 success: function(data) {
                     $('#nombre').val(data.nombre);
                     $('#apellido').val(data.apellido);
-                    $('#formEditar').attr('action', '/autores/' + id);
+                    $('#formEditar').attr('action', '/dibujantes/' + id);
                 }
             });
         }
 
-        // Función para configurar la eliminación del autor
+        // Función para configurar la eliminación del dibujante
         function configurarEliminar(id) {
-            $('#formEliminar').attr('action', '/autores/' + id);
+            $('#formEliminar').attr('action', '/dibujantes/' + id);
         }
     </script>
 @stop

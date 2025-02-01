@@ -11,12 +11,31 @@
     <div class="sidebar">
         <nav class="pt-2">
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-            {{-- Ítem Autores --}}
-            <li class="nav-item">
-            <a href="{{ route('autores.index') }}" class="nav-link">
-                <i class="nav-icon fas fa-user"></i>
-                <p>Autores</p>
-            </a>
+            {{-- Menú Gestión de Recursos --}}
+            <li class="nav-item menu-open">
+                <a href="#" class="nav-link">
+                    <i class="nav-icon fas fa-cogs"></i>
+                    <p>
+                        Gestión de Recursos
+                        <i class="right fas fa-angle-left"></i>  {{-- Icono para indicar submenú --}}
+                    </p>
+                </a>
+                <ul class="nav nav-treeview">
+                    {{-- Ítem Autores --}}
+                    <li class="nav-item">
+                        <a href="{{ route('autores.index') }}" class="nav-link">
+                            <i class="nav-icon fas fa-user"></i>
+                            <p>Autores</p>
+                        </a>
+                    </li>
+                    {{-- Ítem Dibujantes --}}
+                    <li class="nav-item">
+                        <a href="{{ route('dibujantes.index') }}" class="nav-link">
+                            <i class="nav-icon fas fa-pencil-alt"></i>
+                            <p>Dibujantes</p>
+                        </a>
+                    </li>
+                </ul>
             </li>
             {{-- Ítem Editoriales --}}
             <li class="nav-item">
@@ -39,7 +58,7 @@
                     <p>Mangas</p>
                 </a>
             </li>
-        </ul>  
+        </ul>
         </nav>
     </div>
 
