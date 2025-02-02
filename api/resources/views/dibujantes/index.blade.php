@@ -148,7 +148,7 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/3.0.3/css/responsive.bootstrap5.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"> <!-- FontAwesome para los iconos -->
     <style>
-        #dibujantesTable {
+        #Contenido {
             visibility: hidden;
         }
     </style>
@@ -177,7 +177,7 @@
                     "search": "Buscar:",
                 }
             });
-            $('#dibujantesTable').css('visibility', 'visible');
+            $('#Contenido').css('visibility', 'visible');
         });
 
         // Función para editar dibujante
