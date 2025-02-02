@@ -39,7 +39,7 @@
             </li>
             {{-- Ítem Editoriales --}}
             <li class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="{{ route('editoriales.index') }}" class="nav-link">
                     <i class="nav-icon fas fa-building"></i>
                     <p>Editoriales</p>
                 </a>

@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AutorController;
 use App\Http\Controllers\DibujanteController;
+use App\Http\Controllers\EditorialController;
 Route::get('/autores', [AutorController::class, 'index'])->name('autores.index');
 Route::get('/', function () {
     return view('welcome');
@@ -13,7 +14,7 @@ Route::resource('autores', AutorController::class);
 
 
 Route::resource('dibujantes', DibujanteController::class);
-
+Route::resource('editoriales', EditorialController::class);
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
