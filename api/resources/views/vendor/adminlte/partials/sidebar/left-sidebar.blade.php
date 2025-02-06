@@ -53,7 +53,7 @@
             </li>
             {{-- Ítem Mangas --}}
             <li class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="{{ route('mangas.index') }}" class="nav-link">
                     <i class="nav-icon fas fa-book"></i>
                     <p>Mangas</p>
                 </a>
