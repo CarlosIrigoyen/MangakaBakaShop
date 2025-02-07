@@ -13,4 +13,11 @@ class Editorial extends Model
     protected $fillable = ['nombre', 'pais'];
 
 
+    public function editoriales(){
+        return $this->belongsToMany(Editorial::class, 'tomo_editorial', 'tomo_id', 'editorial_id');
+    }
+
+
+
 }
+

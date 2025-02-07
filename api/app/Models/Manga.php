@@ -34,9 +34,11 @@ class Manga extends Model
      * Relación muchos a muchos con el modelo Genero
      * Un manga puede tener muchos géneros y un género puede estar asociado a muchos mangas.
      */
-    public function generos()
-    {
+    public function generos(){
         return $this->belongsToMany(Genero::class, 'manga_genero', 'manga_id', 'genero_id');
+    }
+    public function manga(){
+    return $this->belongsTo(Manga::class, 'manga_id');
     }
 
     /**

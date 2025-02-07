@@ -58,6 +58,12 @@
                     <p>Mangas</p>
                 </a>
             </li>
+            <li class="nav-item">
+                <a href="{{ route('tomos.index') }}" class="nav-link">
+                    <i class="nav-icon fas fa-book"></i>
+                    <p>Tomos</p>
+                </a>
+            </li>
         </ul>
         </nav>
     </div>
