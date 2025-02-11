@@ -158,17 +158,19 @@
                 <button type="submit" class="btn btn-primary">Filtrar</button>
             </div>
         </form>
-    </div>
-    <div class="mb-3 text-start">
-        <button type="button" class="btn btn-success btn-crear-tomo" data-bs-toggle="modal" data-bs-target="#modalCrearTomo">
-            Crear Tomo
-        </button>
+        <br>
+        <div class="mb-3 text-start">
+            <button type="button" class="btn btn-success btn-crear-tomo" data-bs-toggle="modal" data-bs-target="#modalCrearTomo">
+                Crear Tomo
+            </button>
+        </div>
+
     </div>
 
     <!-- Mensaje cuando no se ha seleccionado ningún filtro o búsqueda -->
     @if( ! request()->has('filter_type') && ! request()->filled('search') )
         <div class="alert alert-info text-center">
-            Por favor, seleccione un filtro o realice una búsqueda para listar los tomos.
+            Por favor, seleccione un filtro.
         </div>
     @endif
 
