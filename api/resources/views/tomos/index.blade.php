@@ -85,7 +85,29 @@
         .btn-crear-tomo:hover {
             background-color: #0056b3;
         }
+        /* Tarjeta del tomo individual: max ancho 240px para mantener el formato "libro" */
+        .card-tomo {
+            max-width: 240px;
+            width: 100%;
+            margin: 15px auto;
+            border-radius: 10px;
+            overflow: visible;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        @media (max-width: 1024px) {
+            .card-tomo {
+                max-width: 200px;
+                margin: 15px auto;
+            }
+        }
+
+
     </style>
+      <!-- Cargar CSS de DataTables y FontAwesome -->
+      <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+      <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.bootstrap5.css">
+      <link rel="stylesheet" href="https://cdn.datatables.net/responsive/3.0.3/css/responsive.bootstrap5.css">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 @stop
 
 @section('content')
@@ -183,7 +205,7 @@
         @else
             <!-- Card contenedor para los tomos -->
             <div class="card">
-                <div class="card-body">
+                <div class="card-body g-3">
                     <div class="row" id="tomoList">
                         @foreach($tomos as $tomo)
                             <div class="col-md-4">
@@ -520,4 +542,10 @@
             });
         });
     </script>
+        <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.datatables.net/2.1.8/js/dataTables.js"></script>
+        <script src="https://cdn.datatables.net/2.1.8/js/dataTables.bootstrap5.js"></script>
+        <script src="https://cdn.datatables.net/responsive/3.0.3/js/dataTables.responsive.js"></script>
+        <script src="https://cdn.datatables.net/responsive/3.0.3/js/responsive.bootstrap5.js"></script>
 @stop
