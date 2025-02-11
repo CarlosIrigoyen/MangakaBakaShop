@@ -20,7 +20,6 @@ En principio, el panel administrativo permitirá a los administradores realizar 
 - Gestión de autores
 - Gestión de dibujantes
 - Gestión de editoriales
-- Gestión de categorías
 - Gestión de tomos
 - Gestión de géneros
 - Gestión de mangas
