@@ -17,12 +17,14 @@ class Tomo extends Model
         'idioma',
         'precio',
         'fecha_publicacion',
-        'portada'
+        'portada',
+        'stock'
     ];
 
+    // Si prefieres que Laravel maneje las marcas de tiempo, puedes quitar esta línea
     public $timestamps = false;
 
-    // Relación con Manga (asumiendo que un tomo pertenece a un manga)
+    // Relación: un Tomo pertenece a un Manga.
     public function manga()
     {
         return $this->belongsTo(Manga::class, 'manga_id');

@@ -11,10 +11,11 @@ class Autor extends Model
 
     protected $table = 'autores';
 
-    protected $fillable = ['nombre', 'apellido'];
+    // Agregamos los nuevos campos para asignación masiva
+    protected $fillable = ['nombre', 'apellido', 'fecha_nacimiento', 'activo'];
 
     /**
-     * Relación uno a muchos con el modelo Manga
+     * Relación uno a muchos con el modelo Manga.
      * Un autor puede tener muchos mangas.
      */
     public function mangas()
@@ -22,3 +23,4 @@ class Autor extends Model
         return $this->hasMany(Manga::class, 'autor_id');
     }
 }
+

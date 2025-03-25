@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
+class CreateTomosTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,15 @@ return new class extends Migration
     {
         Schema::create('tomos', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('manga_id')->constrained('mangas')->onDelete('cascade'); // Relación con la tabla mangas
-            $table->foreignId('editorial_id')->constrained('editoriales')->onDelete('cascade'); // Relación con la tabla editoriales
+            $table->foreignId('manga_id')->constrained('mangas')->onDelete('cascade');
+            $table->foreignId('editorial_id')->constrained('editoriales')->onDelete('cascade');
             $table->unsignedInteger('numero_tomo');
             $table->enum('formato', ['Tankōbon', 'Aizōban', 'Kanzenban', 'Bunkoban', 'Wideban']);
             $table->enum('idioma', ['Español', 'Inglés', 'Japonés']);
             $table->decimal('precio', 8, 2);
             $table->date('fecha_publicacion');
-            $table->string('portada'); // Obligatorio, guarda la ruta de la imagen
+            $table->string('portada'); // Guarda la ruta de la imagen
+            $table->unsignedInteger('stock')->default(0); // Nuevo atributo stock
             $table->timestamps();
         });
     }
@@ -32,4 +33,4 @@ return new class extends Migration
     {
         Schema::dropIfExists('tomos');
     }
-};
+}

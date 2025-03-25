@@ -47,8 +47,7 @@
                             <th>Autor</th>
                             <th>Dibujante</th>
                             <th>Género</th>
-                            <th>Fecha de Inicio</th>
-                            <th>Fecha de Fin</th>
+                            <th>En Publicación</th>
                             <th style="width: 80px;">Acciones</th>
                         </tr>
                     </thead>
@@ -64,16 +63,17 @@
                                         {{ $genero->nombre }}@if(!$loop->last), @endif
                                     @endforeach
                                 </td>
-                                <td>{{ \Carbon\Carbon::parse($manga->fecha_inicio)->format('d/m/Y') }}</td>
-                                <td>{{ \Carbon\Carbon::parse($manga->fecha_fin)->format('d/m/Y') }}</td>
+                                <td>{{ $manga->en_publicacion ? 'Sí' : 'No' }}</td>
                                 <td class="text-center">
                                     <div class="acciones-container">
                                         <!-- Botón para editar manga -->
-                                        <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalEditar" onclick="editarManga(@json($manga))">
+                                        <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalEditar"
+                                            onclick="editarManga({{ json_encode($manga) }})">
                                             <i class="fas fa-pen"></i>
                                         </button>
                                         <!-- Botón para eliminar manga -->
-                                        <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#modalEliminar" onclick="configurarEliminar({{ $manga->id }})">
+                                        <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#modalEliminar"
+                                            onclick="configurarEliminar({{ $manga->id }})">
                                             <i class="fas fa-trash-alt"></i>
                                         </button>
                                     </div>
@@ -85,168 +85,9 @@
             </div>
         </div>
     </div>
-
-    <!-- Modal para crear manga -->
-    <div class="modal fade" id="modalCrear" tabindex="-1" aria-labelledby="modalCrearLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalCrearLabel">Crear Manga</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="formCrear" action="{{ route('mangas.store') }}" method="POST">
-                        @csrf
-                        <div class="mb-3">
-                            <label for="titulo_crear" class="form-label">Título</label>
-                            <input type="text" class="form-control" id="titulo_crear" name="titulo" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="autor_crear" class="form-label">Autor</label>
-                            <select class="form-control" id="autor_crear" name="autor_id" required>
-                                @foreach($autores as $autor)
-                                    <option value="{{ $autor->id }}">{{ $autor->nombre }} {{ $autor->apellido }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="dibujante_crear" class="form-label">Dibujante</label>
-                            <select class="form-control" id="dibujante_crear" name="dibujante_id" required>
-                                @foreach($dibujantes as $dibujante)
-                                    <option value="{{ $dibujante->id }}">{{ $dibujante->nombre }} {{ $dibujante->apellido }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Géneros</label>
-                            <div class="border p-2 rounded" style="max-height: 200px; overflow-y: auto;">
-                                <div class="row">
-                                    @foreach($generos as $index => $genero)
-                                        <div class="col-3">
-                                            <div class="form-check">
-                                                <input class="form-check-input genero-checkbox" type="checkbox" id="genero_crear{{ $genero->id }}" name="generos[]" value="{{ $genero->id }}">
-                                                <label class="form-check-label" for="genero_crear{{ $genero->id }}">{{ $genero->nombre }}</label>
-                                            </div>
-                                        </div>
-                                        @if(($index + 1) % 4 == 0)
-                                            </div><div class="row">
-                                        @endif
-                                    @endforeach
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="fecha_inicio_crear" class="form-label">Fecha de Inicio</label>
-                            <input type="date" class="form-control" id="fecha_inicio_crear" name="fecha_inicio" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="fecha_fin_crear" class="form-label">Fecha de Fin</label>
-                            <input type="date" class="form-control" id="fecha_fin_crear" name="fecha_fin">
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn btn-primary">Crear Manga</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal para editar manga -->
-    <div class="modal fade" id="modalEditar" tabindex="-1" aria-labelledby="modalEditarLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalEditarLabel">Editar Manga</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <!-- Formulario sin referencia directa a $manga -->
-                    <form id="formEditar" action="" method="POST">
-                        @csrf
-                        @method('PUT')
-                        <!-- Campo oculto para el id del manga -->
-                        <input type="hidden" id="manga_id" name="id">
-
-                        <div class="mb-3">
-                            <label for="titulo_editar" class="form-label">Título</label>
-                            <input type="text" class="form-control" id="titulo_editar" name="titulo" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="autor_editar" class="form-label">Autor</label>
-                            <select class="form-control" id="autor_editar" name="autor_id" required>
-                                @foreach($autores as $autor)
-                                    <option value="{{ $autor->id }}">{{ $autor->nombre }} {{ $autor->apellido }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="dibujante_editar" class="form-label">Dibujante</label>
-                            <select class="form-control" id="dibujante_editar" name="dibujante_id" required>
-                                @foreach($dibujantes as $dibujante)
-                                    <option value="{{ $dibujante->id }}">{{ $dibujante->nombre }} {{ $dibujante->apellido }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Géneros</label>
-                            <div class="border p-2 rounded" style="max-height: 200px; overflow-y: auto;">
-                                <div class="row">
-                                    @foreach($generos as $index => $genero)
-                                        <div class="col-3">
-                                            <div class="form-check">
-                                                <input class="form-check-input genero-checkbox" type="checkbox" id="genero_editar{{ $genero->id }}" name="generos[]" value="{{ $genero->id }}">
-                                                <label class="form-check-label" for="genero_editar{{ $genero->id }}">{{ $genero->nombre }}</label>
-                                            </div>
-                                        </div>
-                                        @if(($index + 1) % 4 == 0)
-                                            </div><div class="row">
-                                        @endif
-                                    @endforeach
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="fecha_inicio_editar" class="form-label">Fecha de Inicio</label>
-                            <input type="date" class="form-control" id="fecha_inicio_editar" name="fecha_inicio" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="fecha_fin_editar" class="form-label">Fecha de Fin</label>
-                            <input type="date" class="form-control" id="fecha_fin_editar" name="fecha_fin">
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal para eliminar manga -->
-    <div class="modal fade" id="modalEliminar" tabindex="-1" aria-labelledby="modalEliminarLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalEliminarLabel">Eliminar Manga</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    ¿Estás seguro de que deseas eliminar este manga?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <form id="formEliminar" action="" method="POST" style="display:inline;">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger">Eliminar</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+    @include('partials.modal_crear_manga')
+    @include('partials.modal_editar_manga')
+    @include('partials.modal_eliminar_manga')
 @stop
 
 @section('js')
@@ -269,7 +110,6 @@
                     "infoFiltered": "(filtrado de _MAX_ registros totales)",
                     "search": "Buscar:"
                 }
-
             });
             $('#Contenido').css('visibility', 'visible');
         });
@@ -278,32 +118,21 @@
             // Rellenar el formulario de edición con los datos del manga
             $('#manga_id').val(manga.id);
             $('#titulo_editar').val(manga.titulo);
-            $('#autor_editar').val(manga.autor_id);
-            $('#dibujante_editar').val(manga.dibujante_id);
+            $('#autor_editar').val(manga.autor.id);
+            $('#dibujante_editar').val(manga.dibujante.id);
 
-            // Limpiar previamente las casillas de géneros y luego marcarlas según el manga
+            // Limpiar previamente las casillas de géneros y marcarlas según el manga
             $('.genero-checkbox').prop('checked', false);
             manga.generos.forEach(function(genero) {
                 $('#genero_editar' + genero.id).prop('checked', true);
             });
 
-            $('#fecha_inicio_editar').val(manga.fecha_inicio);
-            $('#fecha_fin_editar').val(manga.fecha_fin || '');
+            // Establecer el valor del checkbox de publicación
+            $('#en_publicacion_editar').prop('checked', manga.en_publicacion);
 
-            // Configurar dinámicamente la acción del formulario para actualizar el manga
+            // Configurar la acción del formulario para actualizar el manga
             $('#formEditar').attr('action', '/mangas/' + manga.id);
         }
-
-        // Validación de fechas en el formulario de creación
-        $('#formCrear').on('submit', function(event) {
-            var fechaInicio = $('#fecha_inicio_crear').val();
-            var fechaFin = $('#fecha_fin_crear').val();
-            if (fechaFin && new Date(fechaFin) <= new Date(fechaInicio)) {
-                event.preventDefault();
-                alert('La fecha de fin debe ser mayor que la fecha de inicio.');
-                return false;
-            }
-        });
 
         function configurarEliminar(mangaId) {
             $('#formEliminar').attr('action', '/mangas/' + mangaId);

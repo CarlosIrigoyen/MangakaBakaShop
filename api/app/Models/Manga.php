@@ -10,7 +10,7 @@ class Manga extends Model
     use HasFactory;
     protected $table = 'mangas'; // Asegurar el nombre correcto de la tabla
     // Definir los campos que pueden ser asignados masivamente
-    protected $fillable = ['titulo', 'autor_id', 'dibujante_id', 'fecha_inicio', 'fecha_fin','generos'];
+    protected $fillable = ['titulo', 'autor_id', 'dibujante_id', 'en_publicacion'];
 
     /**
      * Relación con el modelo Autor
@@ -36,29 +36,5 @@ class Manga extends Model
      */
     public function generos(){
         return $this->belongsToMany(Genero::class, 'manga_genero', 'manga_id', 'genero_id');
-    }
-    public function manga(){
-    return $this->belongsTo(Manga::class, 'manga_id');
-    }
-
-    /**
-     * Método de validación al guardar el manga
-     * Controla las reglas de fecha.
-     */
-    public static function boot()
-    {
-        parent::boot();
-
-        static::saving(function ($manga) {
-            // Validar que la fecha de inicio no sea mayor a la actual
-            if ($manga->fecha_inicio > now()) {
-                throw new \Exception("La fecha de inicio no puede ser mayor a la fecha actual.");
-            }
-
-            // Validar que la fecha de fin sea igual o mayor que la fecha de inicio
-            if ($manga->fecha_fin && $manga->fecha_fin < $manga->fecha_inicio) {
-                throw new \Exception("La fecha de fin debe ser igual o mayor que la fecha de inicio.");
-            }
-        });
     }
 }

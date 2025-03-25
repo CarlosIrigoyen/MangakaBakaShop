@@ -12,10 +12,11 @@ class MangaController extends Controller
 {
     public function index()
     {
-        // Obtener todos los mangas junto con los autores, dibujantes y géneros
+        // Obtener todos los mangas junto con sus relaciones
         $mangas = Manga::with(['autor', 'dibujante', 'generos'])->get();
-        $autores = Autor::all();
-        $dibujantes = Dibujante::all();
+        // Solo se muestran autores y dibujantes activos
+        $autores = Autor::where('activo', true)->get();
+        $dibujantes = Dibujante::where('activo', true)->get();
         $generos = Genero::all();
 
         return view('mangas.index', compact('mangas', 'autores', 'dibujantes', 'generos'));
@@ -25,22 +26,20 @@ class MangaController extends Controller
     {
         // Validar los datos del formulario
         $request->validate([
-            'titulo' => 'required|string|max:255',
-            'autor_id' => 'required|exists:autores,id',
-            'dibujante_id' => 'required|exists:dibujantes,id',
-            'generos' => 'required|array',
-            'generos.*' => 'exists:generos,id',
-            'fecha_inicio' => 'required|date',
-            'fecha_fin' => 'nullable|date|after_or_equal:fecha_inicio', // Asegurarse de que la fecha de fin no sea anterior a la de inicio
+            'titulo'         => 'required|string|max:255',
+            'autor_id'       => 'required|exists:autores,id',
+            'dibujante_id'   => 'required|exists:dibujantes,id',
+            'generos'        => 'required|array',
+            'generos.*'      => 'exists:generos,id',
+            'en_publicacion' => 'sometimes|boolean',
         ]);
 
-        // Crear el nuevo manga
+        // Crear el nuevo manga, asignando true por defecto si no se envía el campo
         $manga = Manga::create([
-            'titulo' => $request->titulo,
-            'autor_id' => $request->autor_id,
-            'dibujante_id' => $request->dibujante_id,
-            'fecha_inicio' => $request->fecha_inicio,
-            'fecha_fin' => $request->fecha_fin,
+            'titulo'         => $request->titulo,
+            'autor_id'       => $request->autor_id,
+            'dibujante_id'   => $request->dibujante_id,
+            'en_publicacion' => $request->has('en_publicacion') ? $request->en_publicacion : true,
         ]);
 
         // Asociar los géneros seleccionados
@@ -53,8 +52,9 @@ class MangaController extends Controller
     {
         // Obtener el manga a editar junto con sus relaciones
         $manga = Manga::with(['autor', 'dibujante', 'generos'])->findOrFail($id);
-        $autores = Autor::all();
-        $dibujantes = Dibujante::all();
+        // Solo se muestran autores y dibujantes activos
+        $autores = Autor::where('activo', true)->get();
+        $dibujantes = Dibujante::where('activo', true)->get();
         $generos = Genero::all();
 
         return view('mangas.edit', compact('manga', 'autores', 'dibujantes', 'generos'));
@@ -64,25 +64,21 @@ class MangaController extends Controller
     {
         // Validar los datos del formulario
         $request->validate([
-            'titulo' => 'required|string|max:255',
-            'autor_id' => 'required|exists:autores,id',
-            'dibujante_id' => 'required|exists:dibujantes,id',
-            'generos' => 'required|array',
-            'generos.*' => 'exists:generos,id',
-            'fecha_inicio' => 'required|date',
-            'fecha_fin' => 'nullable|date|after_or_equal:fecha_inicio', // Asegurarse de que la fecha de fin no sea anterior a la de inicio
+            'titulo'         => 'required|string|max:255',
+            'autor_id'       => 'required|exists:autores,id',
+            'dibujante_id'   => 'required|exists:dibujantes,id',
+            'generos'        => 'required|array',
+            'generos.*'      => 'exists:generos,id',
+            'en_publicacion' => 'sometimes|boolean',
         ]);
 
-        // Obtener el manga a actualizar
+        // Obtener y actualizar el manga
         $manga = Manga::findOrFail($id);
-
-        // Actualizar los datos del manga
         $manga->update([
-            'titulo' => $request->titulo,
-            'autor_id' => $request->autor_id,
-            'dibujante_id' => $request->dibujante_id,
-            'fecha_inicio' => $request->fecha_inicio,
-            'fecha_fin' => $request->fecha_fin,
+            'titulo'         => $request->titulo,
+            'autor_id'       => $request->autor_id,
+            'dibujante_id'   => $request->dibujante_id,
+            'en_publicacion' => $request->has('en_publicacion'),
         ]);
 
         // Actualizar los géneros asociados
@@ -93,9 +89,9 @@ class MangaController extends Controller
 
     public function destroy($id)
     {
-        // Eliminar el manga y sus relaciones
+        // Eliminar el manga y desasociar los géneros
         $manga = Manga::findOrFail($id);
-        $manga->generos()->detach(); // Desasociar los géneros
+        $manga->generos()->detach();
         $manga->delete();
 
         return redirect()->route('mangas.index')->with('success', 'Manga eliminado exitosamente.');

@@ -17,10 +17,10 @@ Route::resource('autores', AutorController::class);
 Route::resource('dibujantes', DibujanteController::class);
 Route::resource('editoriales', EditorialController::class);
 Route::resource('mangas', MangaController::class)->except(['update']);
+Route::put('tomos/updateMultipleStock', [TomoController::class, 'updateMultipleStock'])->name('tomos.updateMultipleStock');
 Route::resource('tomos', TomoController::class);
 // Usamos PUT para la actualización del manga
 Route::put('/mangas/{id}', [MangaController::class, 'update'])->name('mangas.update');
-
 Route::resource('generos', GeneroController::class);
 
 Route::middleware([

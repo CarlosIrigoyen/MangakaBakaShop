@@ -15,8 +15,8 @@ return new class extends Migration
             $table->string('titulo');
             $table->foreignId('autor_id')->constrained('autores'); // Relación con la tabla autores
             $table->foreignId('dibujante_id')->constrained('dibujantes'); // Relación con la tabla dibujantes
-            $table->date('fecha_inicio');
-            $table->date('fecha_fin')->nullable();
+            // Nuevo campo booleano para indicar si el manga está en publicación
+            $table->boolean('en_publicacion')->default(true);
             $table->timestamps();
         });
     }

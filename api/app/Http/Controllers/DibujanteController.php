@@ -1,83 +1,107 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\Dibujante;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class DibujanteController extends Controller
 {
-    // Almacenar un nuevo dibujante
-    public function store(Request $request)
-    {
-        // Validar los datos del formulario
-        $validated = $request->validate([
-            'nombre' => 'required|string|max:255',
-            'apellido' => 'required|string|max:255',
-        ]);
-
-        // Crear el nuevo dibujante
-        Dibujante::create([
-            'nombre' => $validated['nombre'],
-            'apellido' => $validated['apellido'],
-        ]);
-
-        // Redirigir a la lista de dibujantes con mensaje de éxito
-        return redirect()->route('dibujantes.index')->with('success', 'Dibujante creado exitosamente.');
-    }
-
-    // Mostrar la lista de dibujantes
+    /**
+     * Muestra la lista de dibujantes activos.
+     */
     public function index()
     {
-        // Obtener todos los dibujantes de la base de datos
-        $dibujantes = Dibujante::all();
-
-        // Retornar la vista con los dibujantes
+        // Listamos solo los dibujantes activos
+        $dibujantes = Dibujante::where('activo', true)->get();
         return view('dibujantes.index', compact('dibujantes'));
     }
 
-    // Editar un dibujante (obtener datos para el formulario)
+    /**
+     * Almacena un nuevo dibujante o reactiva uno existente.
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'nombre'            => 'required|string|max:255|regex:/^[\p{L}\s]+$/u',
+            'apellido'          => 'required|string|max:255|regex:/^[\p{L}\s]+$/u',
+            'fecha_nacimiento'  => 'required|date|before:' . Carbon::now()->subYears(18)->toDateString(),
+        ]);
+
+        // Transformación: primer letra mayúscula y el resto en minúsculas (para cada palabra)
+        $nombre   = mb_convert_case(trim($validated['nombre']), MB_CASE_TITLE, "UTF-8");
+        $apellido = mb_convert_case(trim($validated['apellido']), MB_CASE_TITLE, "UTF-8");
+
+        // Verificar si ya existe un dibujante con estos datos
+        $existing = Dibujante::where('nombre', $nombre)
+                    ->where('apellido', $apellido)
+                    ->where('fecha_nacimiento', $validated['fecha_nacimiento'])
+                    ->first();
+
+        if ($existing) {
+            // Reactivar dibujante ya existente
+            $existing->activo = true;
+            $existing->save();
+            return redirect()->route('dibujantes.index')->with('success', 'Dibujante reactivado exitosamente.');
+        }
+
+        // Crear nuevo dibujante con activo en true
+        Dibujante::create([
+            'nombre'            => $nombre,
+            'apellido'          => $apellido,
+            'fecha_nacimiento'  => $validated['fecha_nacimiento'],
+            'activo'            => true,
+        ]);
+
+        return redirect()->route('dibujantes.index')->with('success', 'Dibujante creado exitosamente.');
+    }
+
+    /**
+     * Retorna los datos de un dibujante en formato JSON para el formulario de edición.
+     */
     public function edit($id)
     {
-        // Buscar el dibujante por su ID
         $dibujante = Dibujante::findOrFail($id);
-
-        // Retornar los datos del dibujante como JSON
         return response()->json($dibujante);
     }
 
-    // Eliminar un dibujante
-    public function destroy($id)
-    {
-        // Encontrar el dibujante por su ID
-        $dibujante = Dibujante::findOrFail($id);
-
-        // Eliminar el dibujante
-        $dibujante->delete();
-
-        // Redirigir a la lista de dibujantes con un mensaje de éxito
-        return redirect()->route('dibujantes.index')->with('success', 'Dibujante eliminado correctamente.');
-    }
-
-    // Actualizar los datos de un dibujante
+    /**
+     * Actualiza los datos de un dibujante.
+     */
     public function update(Request $request, $id)
     {
-        // Obtener el dibujante por su ID
         $dibujante = Dibujante::findOrFail($id);
 
-        // Validar los datos enviados
         $validated = $request->validate([
-            'nombre' => 'required|string|max:255',
-            'apellido' => 'required|string|max:255',
+            'nombre'            => 'required|string|max:255|regex:/^[\p{L}\s]+$/u',
+            'apellido'          => 'required|string|max:255|regex:/^[\p{L}\s]+$/u',
+            'fecha_nacimiento'  => 'required|date|before:' . Carbon::now()->subYears(18)->toDateString(),
         ]);
 
-        // Actualizar los campos del dibujante
-        $dibujante->nombre = $validated['nombre'];
-        $dibujante->apellido = $validated['apellido'];
+        // Transformar los valores recibidos
+        $nombre   = mb_convert_case(trim($validated['nombre']), MB_CASE_TITLE, "UTF-8");
+        $apellido = mb_convert_case(trim($validated['apellido']), MB_CASE_TITLE, "UTF-8");
 
-        // Guardar los cambios
+        // Actualizar los datos (se mantiene el estado actual de 'activo')
+        $dibujante->update([
+            'nombre'           => $nombre,
+            'apellido'         => $apellido,
+            'fecha_nacimiento' => $validated['fecha_nacimiento'],
+        ]);
+
+        return redirect()->route('dibujantes.index')->with('success', 'Dibujante actualizado correctamente.');
+    }
+
+    /**
+     * "Elimina" un dibujante estableciendo el campo activo en false.
+     */
+    public function destroy($id)
+    {
+        $dibujante = Dibujante::findOrFail($id);
+        $dibujante->activo = false;
         $dibujante->save();
 
-        // Redirigir con un mensaje de éxito
-        return redirect()->route('dibujantes.index')->with('success', 'Dibujante actualizado correctamente.');
+        return redirect()->route('dibujantes.index')->with('success', 'Dibujante dado de baja correctamente.');
     }
 }

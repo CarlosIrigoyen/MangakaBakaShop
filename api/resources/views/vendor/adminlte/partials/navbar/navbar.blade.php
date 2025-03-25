@@ -36,7 +36,7 @@
         {{-- Right sidebar toggler link --}}
         @if($layoutHelper->isRightSidebarEnabled())
             @include('adminlte::partials.navbar.menu-item-right-sidebar-toggler')
-        
+
         @endif
     </ul>
 

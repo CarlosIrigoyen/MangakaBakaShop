@@ -13,13 +13,6 @@
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
             {{-- Menú Gestión de Recursos --}}
             <li class="nav-item menu-open">
-                <a href="#" class="nav-link">
-                    <i class="nav-icon fas fa-cogs"></i>
-                    <p>
-                        Gestión de Recursos
-                        <i class="right fas fa-angle-left"></i>  {{-- Icono para indicar submenú --}}
-                    </p>
-                </a>
                 <ul class="nav nav-treeview">
                     {{-- Ítem Autores --}}
                     <li class="nav-item">

@@ -11,10 +11,11 @@ class Dibujante extends Model
 
     protected $table = 'dibujantes';
 
-    protected $fillable = ['nombre', 'apellido'];
+    // Se agregan los campos nuevos al arreglo fillable
+    protected $fillable = ['nombre', 'apellido', 'fecha_nacimiento', 'activo'];
 
     /**
-     * Relación uno a muchos con el modelo Manga
+     * Relación uno a muchos con el modelo Manga.
      * Un dibujante puede tener muchos mangas.
      */
     public function mangas()

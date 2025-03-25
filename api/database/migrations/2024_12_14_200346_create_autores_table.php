@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,8 +12,10 @@ return new class extends Migration
     {
         Schema::create('autores', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre'); // Campo para el nombre del autor
-            $table->string('apellido'); // Campo para el apellido del autor
+            $table->string('nombre'); // Nombre del autor
+            $table->string('apellido'); // Apellido del autor
+            $table->date('fecha_nacimiento'); // Fecha de nacimiento del autor
+            $table->boolean('activo')->default(true); // Indica si el autor está activo
             $table->timestamps();
         });
     }
