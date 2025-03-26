@@ -184,7 +184,7 @@ function App() {
               {tomos.map((tomo) => (
                 <div key={tomo.id} className="col-sm-6 col-md-4 col-lg-3 mb-3">
                   <Card bg="dark" text="white" className="h-100">
-                    <Card.Img
+                  <Card.Img
                       variant="top"
                       src={`http://localhost:8000/${tomo.portada}`}
                       alt={tomo.nombre}
@@ -192,22 +192,25 @@ function App() {
                         width: '100%',
                         height: 'auto',
                         maxHeight: '300px',
-                        objectFit: 'cover',
+                        objectFit: 'contain', 
                       }}
-                    />
+                  />
                     <Card.Body>
-                      <Card.Title>{tomo.nombre}</Card.Title>
-                      {/* Puedes mostrar algo breve aquí, o nada, si prefieres que todo esté en el modal */}
-                      <Button
-                        variant="info"
-                        className="me-2"
-                        onClick={() => handleShowInfo(tomo)}
-                      >
-                        Info
-                      </Button>
-                      <Button variant="primary" onClick={() => handleAddToCart(tomo)}>
-                        Agregar a Carrito
-                      </Button>
+                        <Card.Title>{tomo.nombre}</Card.Title>
+                        <div className="d-grid gap-2">
+                          <Button
+                            variant="info"
+                            onClick={() => handleShowInfo(tomo)}
+                          >
+                            Info
+                          </Button>
+                          <Button
+                            variant="primary"
+                            onClick={() => handleAddToCart(tomo)}
+                          >
+                            Agregar a Carrito
+                          </Button>
+                        </div>
                     </Card.Body>
                   </Card>
                 </div>
