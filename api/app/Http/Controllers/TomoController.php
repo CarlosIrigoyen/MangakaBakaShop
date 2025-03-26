@@ -12,90 +12,104 @@ use Illuminate\Support\Str;
 class TomoController extends Controller
 {
     public function index(Request $request)
-{
-    // Obtener parámetros de filtrado
-    $filterType = $request->get('filter_type'); // 'idioma', 'autor', 'manga' o 'editorial'
-    $search     = $request->get('search');
+    {
+        // Obtener parámetros de filtrado
+        $filterType = $request->get('filter_type'); // 'idioma', 'autor', 'manga' o 'editorial'
+        $search     = $request->get('search');
 
-    // Construir la consulta principal
-    $query = Tomo::with('manga', 'editorial', 'manga.autor');
+        // Construir la consulta principal (con relaciones)
+        $query = Tomo::with('manga', 'editorial', 'manga.autor');
 
-    if ($filterType) {
-        if ($filterType == 'idioma') {
-            $idioma = $request->get('idioma');
-            if ($idioma) {
-                $query->where('idioma', $idioma);
-            }
-        } elseif ($filterType == 'autor') {
-            // Se espera que el select de autor envíe el id del autor
-            $autor = $request->get('autor');
-            if ($autor) {
-                $query->whereHas('manga.autor', function ($q) use ($autor) {
-                    $q->where('id', $autor);
-                });
-            }
-        } elseif ($filterType == 'manga') {
-            $mangaId = $request->get('manga_id');
-            if ($mangaId) {
-                $query->where('manga_id', $mangaId);
-            }
-        } elseif ($filterType == 'editorial') {
-            $editorialId = $request->get('editorial_id');
-            if ($editorialId) {
-                $query->where('editorial_id', $editorialId);
+        // Aplicar filtros según el criterio
+        if ($filterType) {
+            if ($filterType == 'idioma') {
+                $idioma = $request->get('idioma');
+                if ($idioma) {
+                    $query->where('idioma', $idioma);
+                }
+            } elseif ($filterType == 'autor') {
+                // Se espera que el select de autor envíe el id del autor
+                $autor = $request->get('autor');
+                if ($autor) {
+                    $query->whereHas('manga.autor', function ($q) use ($autor) {
+                        $q->where('id', $autor);
+                    });
+                }
+            } elseif ($filterType == 'manga') {
+                $mangaId = $request->get('manga_id');
+                if ($mangaId) {
+                    $query->where('manga_id', $mangaId);
+                }
+            } elseif ($filterType == 'editorial') {
+                $editorialId = $request->get('editorial_id');
+                if ($editorialId) {
+                    $query->where('editorial_id', $editorialId);
+                }
             }
         }
-    }
 
-    if ($search) {
-        $query->where(function ($q) use ($search) {
-            $q->where('numero_tomo', 'like', "%$search%")
-              ->orWhereHas('manga', function ($q2) use ($search) {
-                  $q2->where('titulo', 'like', "%$search%");
-              })
-              ->orWhereHas('editorial', function ($q3) use ($search) {
-                  $q3->where('nombre', 'like', "%$search%");
-              });
-        });
-    }
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('numero_tomo', 'like', "%$search%")
+                  ->orWhereHas('manga', function ($q2) use ($search) {
+                      $q2->where('titulo', 'like', "%$search%");
+                  })
+                  ->orWhereHas('editorial', function ($q3) use ($search) {
+                      $q3->where('nombre', 'like', "%$search%");
+                  });
+            });
+        }
 
-    // Ordenar por el número de tomo (ascendente)
-    $query->orderBy('numero_tomo', 'asc');
-
-    // Paginar 6 tomos por página y conservar los parámetros en la URL
-    $tomos = $query->paginate(6)->appends($request->query());
-
-    // Consultar todas las opciones para los selects (para filtros y para el modal de creación)
-    $mangas = Manga::all();
-    $editoriales = Editorial::all();
-
-    // Calcular, para cada manga, el próximo número de tomo y la fecha mínima (último tomo + 1 mes)
-    $nextTomos = [];
-    foreach ($mangas as $manga) {
-        $lastTomo = Tomo::where('manga_id', $manga->id)
-                        ->orderBy('numero_tomo', 'desc')
-                        ->first();
-        if ($lastTomo) {
-            $nextTomos[$manga->id] = [
-                'numero' => $lastTomo->numero_tomo + 1,
-                'fecha'  => Carbon::parse($lastTomo->fecha_publicacion)
-                                  ->addMonth()
-                                  ->format('Y-m-d')
-            ];
+        /**
+         * Ordenamiento:
+         * Si se aplica un filtro basado en algún criterio (por ejemplo, 'editorial', 'idioma', 'autor' o 'manga'),
+         * se ordena primero por el título del manga (alfabéticamente) y luego por el número de tomo.
+         * En caso contrario, se ordena únicamente por el número de tomo.
+         */
+        if ($filterType && in_array($filterType, ['idioma','autor','manga','editorial'])) {
+            // Realizamos un join con la tabla de mangas para ordenar por el título
+            $query->join('mangas', 'mangas.id', '=', 'tomos.manga_id')
+                  ->orderBy('mangas.titulo', 'asc')
+                  ->orderBy('tomos.numero_tomo', 'asc')
+                  ->select('tomos.*'); // Evitamos conflictos al seleccionar sólo columnas de tomos
         } else {
-            $nextTomos[$manga->id] = [
-                'numero' => 1,
-                'fecha'  => null
-            ];
+            $query->orderBy('numero_tomo', 'asc');
         }
+
+        // Paginar 6 tomos por página y conservar los parámetros en la URL
+        $tomos = $query->paginate(6)->appends($request->query());
+
+        // Consultar todas las opciones para los selects (para filtros y para el modal de creación)
+        $mangas = Manga::all();
+        $editoriales = Editorial::all();
+
+        // Calcular, para cada manga, el próximo número de tomo y la fecha mínima (último tomo + 1 mes)
+        $nextTomos = [];
+        foreach ($mangas as $manga) {
+            $lastTomo = Tomo::where('manga_id', $manga->id)
+                            ->orderBy('numero_tomo', 'desc')
+                            ->first();
+            if ($lastTomo) {
+                $nextTomos[$manga->id] = [
+                    'numero' => $lastTomo->numero_tomo + 1,
+                    'fecha'  => \Carbon\Carbon::parse($lastTomo->fecha_publicacion)
+                                      ->addMonth()
+                                      ->format('Y-m-d')
+                ];
+            } else {
+                $nextTomos[$manga->id] = [
+                    'numero' => 1,
+                    'fecha'  => null
+                ];
+            }
+        }
+
+        // Obtener todos los tomos con stock menor a 10 (sin depender de los filtros)
+        $lowStockTomos = Tomo::where('stock', '<', 10)->with('manga')->get();
+        $hasLowStock   = $lowStockTomos->isNotEmpty();
+
+        return view('tomos.index', compact('tomos', 'mangas', 'editoriales', 'nextTomos', 'lowStockTomos', 'hasLowStock'));
     }
-
-    // Obtener todos los tomos con stock menor a 10 (sin depender de los filtros)
-    $lowStockTomos = Tomo::where('stock', '<', 10)->with('manga')->get();
-    $hasLowStock   = $lowStockTomos->isNotEmpty();
-
-    return view('tomos.index', compact('tomos', 'mangas', 'editoriales', 'nextTomos', 'lowStockTomos', 'hasLowStock'));
-}
 
 
     public function store(Request $request)
@@ -307,7 +321,79 @@ class TomoController extends Controller
     // Redireccionar al listado con mensaje de éxito.
     return redirect()->route('tomos.index')->with('success', 'Stocks actualizados correctamente.');
 }
+public function indexPublic(Request $request)
+    {
+        // Iniciar la consulta con las relaciones necesarias
+        $query = Tomo::with('manga', 'editorial', 'manga.autor');
 
+        /**
+         * Filtros enviados como arrays (por ejemplo, desde checkboxes en el panel lateral)
+         */
+        if ($request->has('authors')) {
+            $authors = explode(',', $request->get('authors'));
+            $query->whereHas('manga.autor', function ($q) use ($authors) {
+                $q->whereIn('id', $authors);
+            });
+        }
+        if ($request->has('languages')) {
+            $languages = explode(',', $request->get('languages'));
+            $query->whereIn('idioma', $languages);
+        }
+        if ($request->has('mangas')) {
+            $mangas = explode(',', $request->get('mangas'));
+            $query->whereIn('manga_id', $mangas);
+        }
+        if ($request->has('editorials')) {
+            $editorials = explode(',', $request->get('editorials'));
+            $query->whereIn('editorial_id', $editorials);
+        }
 
+        /**
+         * Filtros individuales (por ejemplo, si se usa un select y se envía 'filter_type')
+         */
+        if ($filterType = $request->get('filter_type')) {
+            if ($filterType == 'idioma' && $idioma = $request->get('idioma')) {
+                $query->where('idioma', $idioma);
+            } elseif ($filterType == 'autor' && $autor = $request->get('autor')) {
+                $query->whereHas('manga.autor', function ($q) use ($autor) {
+                    $q->where('id', $autor);
+                });
+            } elseif ($filterType == 'manga' && $mangaId = $request->get('manga_id')) {
+                $query->where('manga_id', $mangaId);
+            } elseif ($filterType == 'editorial' && $editorialId = $request->get('editorial_id')) {
+                $query->where('editorial_id', $editorialId);
+            }
+        }
+
+        /**
+         * Filtro de búsqueda general (número de tomo, título del manga o nombre de la editorial)
+         */
+        if ($search = $request->get('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('numero_tomo', 'like', "%$search%")
+                  ->orWhereHas('manga', function ($q2) use ($search) {
+                      $q2->where('titulo', 'like', "%$search%");
+                  })
+                  ->orWhereHas('editorial', function ($q3) use ($search) {
+                      $q3->where('nombre', 'like', "%$search%");
+                  });
+            });
+        }
+
+        /**
+         * Filtro por rango de precio (se envían 'minPrice' y 'maxPrice')
+         */
+        if ($request->has('minPrice') && $request->has('maxPrice')) {
+            $minPrice = $request->get('minPrice');
+            $maxPrice = $request->get('maxPrice');
+            $query->whereBetween('precio', [$minPrice, $maxPrice]);
+        }
+
+        // Paginación (por ejemplo, 6 items por página) y conservar los parámetros en la URL
+        $tomos = $query->paginate(6)->appends($request->query());
+
+        // Retornar la respuesta en JSON (puedes adaptar esto para retornar una vista, si lo requieres)
+        return response()->json($tomos);
+    }
 
 }
