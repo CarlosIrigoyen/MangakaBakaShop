@@ -346,7 +346,7 @@ public function indexPublic(Request $request)
         $query->whereIn('editorial_id', $editorials);
     }
 
-    // Filtros individuales (si se necesitan)
+
     if ($filterType = $request->get('filter_type')) {
         if ($filterType == 'idioma' && $idioma = $request->get('idioma')) {
             $query->where('idioma', $idioma);

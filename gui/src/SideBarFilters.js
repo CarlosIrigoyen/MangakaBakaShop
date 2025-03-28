@@ -18,7 +18,7 @@ const SidebarFilters = ({ onFilterChange }) => {
     mangas: [],
     editorials: [],
   });
-
+  console.log('Autores disponibles:', availableFilters.authors);
   // Estados para secciones colapsables
   const [openSections, setOpenSections] = useState({
     authors: true,
@@ -113,13 +113,18 @@ const SidebarFilters = ({ onFilterChange }) => {
                   checked={filters.author === author.id}
                   onChange={() => handleExclusiveChange('author', author.id)}
                 />
-                <label htmlFor={`author-${author.id}`} className="ms-1">
-                  {author.nombre} {author.apellido}
-                </label>
+               <label htmlFor={`author-${author.id}`} className="ms-1">
+                    {author.nombre + ' ' + author.apellido}
+               </label>
+
+            
               </div>
             ))}
           </div>
-        )}
+          
+        )
+        
+        }
       </div>
       <hr />
 

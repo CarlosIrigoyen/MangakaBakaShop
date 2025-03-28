@@ -1,3 +1,4 @@
+// App.js
 import React, { useState, useEffect } from 'react';
 import { Navbar, Container, Form, Button } from 'react-bootstrap';
 import { FaShoppingCart } from 'react-icons/fa';
@@ -6,6 +7,7 @@ import RegisterModal from './RegisterModal';
 import LoginModal from './LoginModal';
 import InfoModal from './InfoModal';
 import TomoList from './TomoList';
+import { CartProvider } from './CartContext';
 
 function App() {
   const [showRegister, setShowRegister] = useState(false);
@@ -172,80 +174,76 @@ function App() {
     handleFilterChange(currentFilters, page);
   };
 
-  // Función para manejar la acción de agregar al carrito
-  const handleAddToCart = (tomo) => {
-    console.log('Agregar al carrito:', tomo);
-    // Aquí podrías implementar la lógica para agregar el producto al carrito
-  };
-
-  // Función para mostrar información del tomo
+  // Función para manejar la acción de mostrar información del tomo
   const handleShowInfo = (tomo) => {
     setSelectedTomo(tomo);
     setShowInfoModal(true);
   };
 
   return (
-    <div className="bg-dark text-white min-vh-100">
-      {/* NAVBAR */}
-      <Navbar bg="dark" variant="dark" expand="lg" className="border-bottom border-light shadow">
-        <Container fluid>
-          <Navbar.Brand href="#home">
-            <img
-              src="/img/Mangaka.png"
-              alt="Logo Mangaka"
-              width="40"
-              height="40"
-              className="d-inline-block align-top rounded-circle"
-            />
-            <span className="ms-2">Mangaka Baka Shop</span>
-          </Navbar.Brand>
-          <Form className="d-flex mx-auto" style={{ width: '50%' }}>
-            <Form.Control type="search" placeholder="Buscar" className="me-2" aria-label="Buscar" />
-            <Button variant="outline-light">Buscar</Button>
-          </Form>
-          <div className="d-flex ms-auto align-items-center">
-            {user ? (
-              <>
-                <Button variant="outline-light" className="me-2" style={{ fontSize: '1.5rem' }}>
-                  <FaShoppingCart />
-                </Button>
-                <Button variant="danger" onClick={handleLogout}>
-                  Cerrar Sesión
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button variant="primary" className="me-2" onClick={() => setShowRegister(true)}>
-                  Registrar
-                </Button>
-                <Button variant="secondary" onClick={() => setShowLogin(true)}>
-                  Iniciar Sesión
-                </Button>
-              </>
-            )}
-          </div>
-        </Container>
-      </Navbar>
+    <CartProvider>
+      <div className="bg-dark text-white min-vh-100">
+        {/* NAVBAR */}
+        <Navbar bg="dark" variant="dark" expand="lg" className="border-bottom border-light shadow">
+          <Container fluid>
+            <Navbar.Brand href="#home">
+              <img
+                src="/img/Mangaka.png"
+                alt="Logo Mangaka"
+                width="40"
+                height="40"
+                className="d-inline-block align-top rounded-circle"
+              />
+              <span className="ms-2">Mangaka Baka Shop</span>
+            </Navbar.Brand>
+            <Form className="d-flex mx-auto" style={{ width: '50%' }}>
+              <Form.Control type="search" placeholder="Buscar" className="me-2" aria-label="Buscar" />
+              <Button variant="outline-light">Buscar</Button>
+            </Form>
+            <div className="d-flex ms-auto align-items-center">
+              {user ? (
+                <>
+                  <span className="me-2">Hola, {user.nombre}</span>
+                  <Button variant="outline-light" className="me-2" style={{ fontSize: '1.5rem' }}>
+                    <FaShoppingCart />
+                  </Button>
+                  <Button variant="danger" onClick={handleLogout}>
+                    Cerrar Sesión
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="primary" className="me-2" onClick={() => setShowRegister(true)}>
+                    Registrar
+                  </Button>
+                  <Button variant="secondary" onClick={() => setShowLogin(true)}>
+                    Iniciar Sesión
+                  </Button>
+                </>
+              )}
+            </div>
+          </Container>
+        </Navbar>
 
-      {/* CONTENEDOR PRINCIPAL */}
-      <div className="d-flex" style={{ minHeight: 'calc(100vh - 56px)' }}>
-        <SidebarFilters onFilterChange={(filters) => handleFilterChange(filters, 1)} />
-        <TomoList
-          tomos={tomos}
-          pagination={pagination}
-          onPageChange={handlePageChange}
-          onAddToCart={handleAddToCart}
-          onShowInfo={handleShowInfo}
-        />
+        {/* CONTENEDOR PRINCIPAL */}
+        <div className="d-flex" style={{ minHeight: 'calc(100vh - 56px)' }}>
+          <SidebarFilters onFilterChange={(filters) => handleFilterChange(filters, 1)} />
+          <TomoList
+            tomos={tomos}
+            pagination={pagination}
+            onPageChange={handlePageChange}
+            onShowInfo={handleShowInfo}
+            isLoggedIn={Boolean(user)}  // Se usa Boolean(user) para determinar el estado de autenticación
+          />
+        </div>
+
+        {/* Modales */}
+        <RegisterModal show={showRegister} onHide={() => setShowRegister(false)} onSubmit={handleRegisterSubmit} />
+        <LoginModal show={showLogin} onHide={() => setShowLogin(false)} onSubmit={handleLoginSubmit} />
+        <InfoModal show={showInfoModal} onClose={() => setShowInfoModal(false)} tomo={selectedTomo} />
       </div>
-
-      {/* Modales */}
-      <RegisterModal show={showRegister} onHide={() => setShowRegister(false)} onSubmit={handleRegisterSubmit} />
-      <LoginModal show={showLogin} onHide={() => setShowLogin(false)} onSubmit={handleLoginSubmit} />
-      <InfoModal show={showInfoModal} onClose={() => setShowInfoModal(false)} tomo={selectedTomo} />
-    </div>
+    </CartProvider>
   );
 }
 
 export default App;
-

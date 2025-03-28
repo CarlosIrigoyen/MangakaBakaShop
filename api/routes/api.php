@@ -22,7 +22,7 @@ Route::middleware('auth:sanctum')->get('/me', function (Request $request) {
 Route::get('public/tomos', [TomoController::class, 'indexPublic']);
 
 Route::get('filters', function () {
-    $authors = Autor::select('id', 'nombre')->get();
+    $authors = Autor::select('id', 'nombre','apellido')->get();
     $mangas = Manga::select('id', 'titulo')->get();
     $editorials = Editorial::select('id', 'nombre')->get();
 

@@ -1,8 +1,13 @@
-import React from 'react';
+// TomoList.js
+import React, { useContext } from 'react';
 import { Card, Button, Pagination } from 'react-bootstrap';
 import { FaShoppingCart, FaInfoCircle } from 'react-icons/fa';
+import { CartContext } from './CartContext';
 
-const TomoList = ({ tomos, pagination, onPageChange, onAddToCart, onShowInfo }) => {
+const TomoList = ({ tomos, pagination, onPageChange, onShowInfo, isLoggedIn }) => {
+  // Llamada al hook en el nivel superior para obtener addToCart del contexto
+  const { addToCart } = useContext(CartContext);
+
   // Si la respuesta viene paginada, se espera que los registros estén en tomos.data
   const data = tomos.data ? tomos.data : tomos;
 
@@ -36,15 +41,19 @@ const TomoList = ({ tomos, pagination, onPageChange, onAddToCart, onShowInfo }) 
                 <Card.Title>
                   {tomo.manga?.titulo} Tomo {tomo.numero_tomo} - {tomo.idioma}
                 </Card.Title>
-                <Card.Text>Precio: ${parseFloat(tomo.precio).toFixed(0)}</Card.Text>
+                <Card.Text>
+                  Precio: ${parseFloat(tomo.precio).toFixed(0)}
+                </Card.Text>
                 <div className="mt-auto d-flex justify-content-center">
-                  <Button
-                    variant="primary"
-                    className="me-2"
-                    onClick={() => onAddToCart(tomo)}
-                  >
-                    <FaShoppingCart /> Agregar Carrito
-                  </Button>
+                  {isLoggedIn && (
+                    <Button
+                      variant="primary"
+                      className="me-2"
+                      onClick={() => addToCart(tomo)}
+                    >
+                      <FaShoppingCart /> Agregar Carrito
+                    </Button>
+                  )}
                   <Button variant="info" onClick={() => onShowInfo(tomo)}>
                     <FaInfoCircle /> Info
                   </Button>
