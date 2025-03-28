@@ -6,6 +6,7 @@ use App\Models\Cliente;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 
 class ClienteController extends Controller
 {
@@ -31,9 +32,13 @@ class ClienteController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
+        // Generar token para autenticación
+        $token = $cliente->createToken('auth_token')->plainTextToken;
+
         return response()->json([
             'mensaje' => 'Cliente creado correctamente',
-            'cliente' => $cliente
+            'cliente' => $cliente,
+            'token'   => $token
         ], 201);
     }
 
@@ -61,10 +66,22 @@ class ClienteController extends Controller
             ], 401);
         }
 
-        // Retornar la información del cliente en caso de login exitoso
+        // Generar token para autenticación
+        $token = $cliente->createToken('auth_token')->plainTextToken;
+
         return response()->json([
             'mensaje' => 'Login exitoso',
-            'user'    => $cliente
+            'cliente' => $cliente,
+            'token'   => $token
+        ], 200);
+    }
+
+    public function logout(Request $request)
+    {
+        $request->user()->tokens()->delete();
+
+        return response()->json([
+            'mensaje' => 'Cierre de sesión exitoso'
         ], 200);
     }
 }
