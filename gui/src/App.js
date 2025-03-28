@@ -214,7 +214,7 @@ function App() {
               ) : (
                 <>
                   <Button variant="primary" className="me-2" onClick={() => setShowRegister(true)}>
-                    Registrar
+                    Registrarse
                   </Button>
                   <Button variant="secondary" onClick={() => setShowLogin(true)}>
                     Iniciar Sesión

@@ -6,7 +6,7 @@ function RegisterModal({ show, onHide, onSubmit }) {
   return (
     <Modal show={show} onHide={onHide}>
       <Modal.Header closeButton className="bg-dark text-white">
-        <Modal.Title>Registrar</Modal.Title>
+        <Modal.Title>Registrarse</Modal.Title>
       </Modal.Header>
       <Modal.Body className="bg-dark text-white">
         <Form onSubmit={onSubmit}>
