@@ -7,6 +7,7 @@ use App\Http\Controllers\TomoController;
 use App\Models\Autor;
 use App\Models\Manga;
 use App\Models\Editorial;
+use App\Models\Tomo;
 
 // Rutas de autenticación con tokens
 Route::post('/register', [ClienteController::class, 'store']);
@@ -22,17 +23,23 @@ Route::middleware('auth:sanctum')->get('/me', function (Request $request) {
 Route::get('public/tomos', [TomoController::class, 'indexPublic']);
 
 Route::get('filters', function () {
-    $authors = Autor::select('id', 'nombre','apellido')->get();
+    $authors = Autor::select('id', 'nombre', 'apellido')->get();
     $mangas = Manga::select('id', 'titulo')->get();
     $editorials = Editorial::select('id', 'nombre')->get();
 
     // Idiomas fijos o provenientes de la base de datos
     $languages = ['Español', 'Inglés', 'Japonés'];
 
+    // Obtener el precio mínimo y máximo de los tomos
+    $minPrice = Tomo::min('precio');
+    $maxPrice = Tomo::max('precio');
+
     return response()->json([
-        'authors'     => $authors,
-        'languages'   => $languages,
-        'mangas'      => $mangas,
-        'editorials'  => $editorials,
+        'authors'    => $authors,
+        'languages'  => $languages,
+        'mangas'     => $mangas,
+        'editorials' => $editorials,
+        'minPrice'   => $minPrice,
+        'maxPrice'   => $maxPrice,
     ]);
 });

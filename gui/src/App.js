@@ -1,26 +1,27 @@
 // App.js
-import React, { useState, useEffect } from 'react';
-import { Navbar, Container, Form, Button } from 'react-bootstrap';
+import React, { useState, useEffect, useContext } from 'react';
+
+
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { Navbar, Container, Form, Button, Dropdown } from 'react-bootstrap';
 import { FaShoppingCart } from 'react-icons/fa';
 import SidebarFilters from './SideBarFilters';
 import RegisterModal from './RegisterModal';
 import LoginModal from './LoginModal';
 import InfoModal from './InfoModal';
 import TomoList from './TomoList';
-import { CartProvider } from './CartContext';
+import CartPage from './CartPage';
+import { CartProvider, CartContext } from './CartContext';
 
-function App() {
+const MainApp = () => {
   const [showRegister, setShowRegister] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [user, setUser] = useState(null);
   const [tomos, setTomos] = useState([]);
   const [pagination, setPagination] = useState(null);
-
-  // Estados para el modal de info
+  const [searchQuery, setSearchQuery] = useState('');
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [selectedTomo, setSelectedTomo] = useState(null);
-
-  // Opcional: guardar filtros actuales en estado para reutilizarlos en la paginación
   const [currentFilters, setCurrentFilters] = useState({
     authors: [],
     languages: [],
@@ -30,9 +31,12 @@ function App() {
     searchText: '',
   });
 
+  // Obtenemos la información del carrito del contexto
+  const { cart } = useContext(CartContext);
+  const cartCount = cart.length;
+
   useEffect(() => {
     checkAuth(); // Verificar usuario autenticado
-    // Cargar la primera página con filtros iniciales
     handleFilterChange(currentFilters, 1);
   }, []);
 
@@ -52,7 +56,6 @@ function App() {
       });
       const result = await response.json();
       if (response.ok) {
-        console.log('Registro exitoso:', result.mensaje);
         localStorage.setItem('token', result.token);
         setUser(result.cliente);
         setShowRegister(false);
@@ -79,12 +82,11 @@ function App() {
       });
       const result = await response.json();
       if (response.ok) {
-        console.log('Login exitoso:', result);
         localStorage.setItem('token', result.token);
         setUser(result.cliente);
         setShowLogin(false);
       } else {
-        console.error('Errores en login:', result.errors);
+        console.error(result.errors);
       }
     } catch (error) {
       console.error('Error en login:', error);
@@ -110,7 +112,6 @@ function App() {
         localStorage.removeItem('token');
       }
     } catch (error) {
-      console.error('Error al obtener usuario:', error);
       localStorage.removeItem('token');
     }
   };
@@ -140,7 +141,6 @@ function App() {
 
   // ---------- OBTENER TOMOS (FILTROS y PAGINACIÓN) ----------
   const handleFilterChange = async (filters, page = 1) => {
-    // Actualizar filtros actuales para reutilizarlos en la paginación
     setCurrentFilters(filters);
 
     const queryParams = new URLSearchParams();
@@ -156,7 +156,9 @@ function App() {
     queryParams.append('page', page);
 
     try {
-      const response = await fetch(`http://localhost:8000/api/public/tomos?${queryParams.toString()}`);
+      const response = await fetch(
+        `http://localhost:8000/api/public/tomos?${queryParams.toString()}`
+      );
       const result = await response.json();
       setTomos(result.data);
       setPagination({
@@ -169,81 +171,124 @@ function App() {
     }
   };
 
-  // Función para cambiar de página utilizando los filtros actuales
   const handlePageChange = (page) => {
     handleFilterChange(currentFilters, page);
   };
 
-  // Función para manejar la acción de mostrar información del tomo
   const handleShowInfo = (tomo) => {
     setSelectedTomo(tomo);
     setShowInfoModal(true);
   };
 
+  const handleSearch = () => {
+    const newFilters = { ...currentFilters, searchText: searchQuery };
+    handleFilterChange(newFilters, 1);
+  };
+
+  return (
+    <div className="bg-dark text-white min-vh-100">
+      {/* NAVBAR */}
+      <Navbar bg="dark" variant="dark" expand="lg" className="border-bottom border-light shadow">
+        <Container fluid>
+          <Navbar.Brand href="#home">
+            <img
+              src="/img/Mangaka.png"
+              alt="Logo Mangaka"
+              width="40"
+              height="40"
+              className="d-inline-block align-top rounded-circle"
+            />
+            <span className="ms-2">Mangaka Baka Shop</span>
+          </Navbar.Brand>
+          <Form className="d-flex mx-auto" style={{ width: '50%' }}>
+            <Form.Control
+              type="search"
+              placeholder="Buscar"
+              className="me-2"
+              aria-label="Buscar"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <Button variant="outline-light" onClick={handleSearch}>
+              Buscar
+            </Button>
+          </Form>
+          <div className="d-flex ms-auto align-items-center">
+            {user ? (
+              <>
+                <span className="me-2">Hola, {user.nombre}</span>
+                {/* Dropdown del carrito */}
+                <Dropdown align="end" className="me-2">
+                  <Dropdown.Toggle variant="outline-light" id="dropdown-cart">
+                    <FaShoppingCart /> {cartCount}
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu>
+                    {cartCount === 0 ? (
+                      <Dropdown.ItemText>No hay elementos en el carrito</Dropdown.ItemText>
+                    ) : (
+                      <Dropdown.Item as={Link} to="/cart">
+                        Ir a carrito
+                      </Dropdown.Item>
+                    )}
+                  </Dropdown.Menu>
+                </Dropdown>
+                <Button variant="danger" onClick={handleLogout}>
+                  Cerrar Sesión
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="primary" className="me-2" onClick={() => setShowRegister(true)}>
+                  Registrarse
+                </Button>
+                <Button variant="secondary" onClick={() => setShowLogin(true)}>
+                  Iniciar Sesión
+                </Button>
+              </>
+            )}
+          </div>
+        </Container>
+      </Navbar>
+
+      {/* CONTENEDOR PRINCIPAL */}
+      <div className="d-flex" style={{ minHeight: 'calc(100vh - 56px)' }}>
+        <SidebarFilters onFilterChange={(filters) => handleFilterChange(filters, 1)} />
+        <TomoList
+          tomos={tomos}
+          pagination={pagination}
+          onPageChange={handlePageChange}
+          onShowInfo={handleShowInfo}
+          isLoggedIn={Boolean(user)}
+        />
+      </div>
+
+      {/* Modales */}
+      <RegisterModal
+        show={showRegister}
+        onHide={() => setShowRegister(false)}
+        onSubmit={handleRegisterSubmit}
+      />
+      <LoginModal
+        show={showLogin}
+        onHide={() => setShowLogin(false)}
+        onSubmit={handleLoginSubmit}
+      />
+      <InfoModal show={showInfoModal} onClose={() => setShowInfoModal(false)} tomo={selectedTomo} />
+    </div>
+  );
+};
+
+const App = () => {
   return (
     <CartProvider>
-      <div className="bg-dark text-white min-vh-100">
-        {/* NAVBAR */}
-        <Navbar bg="dark" variant="dark" expand="lg" className="border-bottom border-light shadow">
-          <Container fluid>
-            <Navbar.Brand href="#home">
-              <img
-                src="/img/Mangaka.png"
-                alt="Logo Mangaka"
-                width="40"
-                height="40"
-                className="d-inline-block align-top rounded-circle"
-              />
-              <span className="ms-2">Mangaka Baka Shop</span>
-            </Navbar.Brand>
-            <Form className="d-flex mx-auto" style={{ width: '50%' }}>
-              <Form.Control type="search" placeholder="Buscar" className="me-2" aria-label="Buscar" />
-              <Button variant="outline-light">Buscar</Button>
-            </Form>
-            <div className="d-flex ms-auto align-items-center">
-              {user ? (
-                <>
-                  <span className="me-2">Hola, {user.nombre}</span>
-                  <Button variant="outline-light" className="me-2" style={{ fontSize: '1.5rem' }}>
-                    <FaShoppingCart />
-                  </Button>
-                  <Button variant="danger" onClick={handleLogout}>
-                    Cerrar Sesión
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button variant="primary" className="me-2" onClick={() => setShowRegister(true)}>
-                    Registrarse
-                  </Button>
-                  <Button variant="secondary" onClick={() => setShowLogin(true)}>
-                    Iniciar Sesión
-                  </Button>
-                </>
-              )}
-            </div>
-          </Container>
-        </Navbar>
-
-        {/* CONTENEDOR PRINCIPAL */}
-        <div className="d-flex" style={{ minHeight: 'calc(100vh - 56px)' }}>
-          <SidebarFilters onFilterChange={(filters) => handleFilterChange(filters, 1)} />
-          <TomoList
-            tomos={tomos}
-            pagination={pagination}
-            onPageChange={handlePageChange}
-            onShowInfo={handleShowInfo}
-            isLoggedIn={Boolean(user)}  // Se usa Boolean(user) para determinar el estado de autenticación
-          />
-        </div>
-
-        {/* Modales */}
-        <RegisterModal show={showRegister} onHide={() => setShowRegister(false)} onSubmit={handleRegisterSubmit} />
-        <LoginModal show={showLogin} onHide={() => setShowLogin(false)} onSubmit={handleLoginSubmit} />
-        <InfoModal show={showInfoModal} onClose={() => setShowInfoModal(false)} tomo={selectedTomo} />
-      </div>
+      <Router>
+        <Routes>
+          <Route path="/" element={<MainApp />} />
+          <Route path="/cart" element={<CartPage />} />
+        </Routes>
+      </Router>
     </CartProvider>
   );
-}
+};
 
 export default App;

@@ -1,15 +1,15 @@
-// SidebarFilters.js
 import React, { useState, useEffect } from 'react';
 
 const SidebarFilters = ({ onFilterChange }) => {
-  // Filtros exclusivos (un solo valor por cada uno)
+  // Estado para filtros exclusivos
   const [filters, setFilters] = useState({
     author: null,
     language: null,
     manga: null,
     editorial: null,
-    priceRange: [0, 100],
+    priceRange: [0, 100], // Valores por defecto, se actualizarán
     searchText: '',
+    applyPriceFilter: 0,
   });
 
   const [availableFilters, setAvailableFilters] = useState({
@@ -17,8 +17,13 @@ const SidebarFilters = ({ onFilterChange }) => {
     languages: [],
     mangas: [],
     editorials: [],
+    minPrice: 0,
+    maxPrice: 0,
   });
-  console.log('Autores disponibles:', availableFilters.authors);
+
+  // Imprime el rango de precios actual del filtro, no del availableFilters
+  console.log('Rango de precios actual:', filters.priceRange);
+
   // Estados para secciones colapsables
   const [openSections, setOpenSections] = useState({
     authors: true,
@@ -28,14 +33,19 @@ const SidebarFilters = ({ onFilterChange }) => {
     price: true,
   });
 
-  // Se solicita al backend los filtros disponibles al montar el componente
+  // Obtener filtros disponibles del backend
   useEffect(() => {
     async function fetchFilters() {
       try {
         const response = await fetch('http://localhost:8000/api/filters');
         const result = await response.json();
-        // Se espera que el backend retorne un objeto con arrays de autores, idiomas, mangas y editoriales
+        // Actualizamos el estado de los filtros disponibles
         setAvailableFilters(result);
+        // También actualizamos el rango de precios del filtro con los valores recibidos
+        setFilters((prev) => ({
+          ...prev,
+          priceRange: [result.minPrice, result.maxPrice],
+        }));
       } catch (error) {
         console.error('Error fetching filters', error);
       }
@@ -43,19 +53,31 @@ const SidebarFilters = ({ onFilterChange }) => {
     fetchFilters();
   }, []);
 
-  // Actualiza el estado de filtros y notifica al componente padre,
-  // transformando los filtros exclusivos en arrays y enviando el criterio de ordenamiento.
+  // Función para actualizar filtros y enviar al componente padre
   const updateFilters = (newFilters) => {
     setFilters(newFilters);
-    const transformedFilters = {
+    console.log('Actualizando filtros, priceRange:', newFilters.priceRange);
+    let transformedFilters = {
       authors: newFilters.author ? [newFilters.author] : [],
       languages: newFilters.language ? [newFilters.language] : [],
       mangas: newFilters.manga ? [newFilters.manga] : [],
       editorials: newFilters.editorial ? [newFilters.editorial] : [],
-      priceRange: newFilters.priceRange,
       searchText: newFilters.searchText,
       sortBy: 'titulo,numero_tomo',
     };
+
+    if (newFilters.applyPriceFilter === 1) {
+      const formattedMin = parseFloat(newFilters.priceRange[0]).toFixed(2);
+      const formattedMax = parseFloat(newFilters.priceRange[1]).toFixed(2);
+      transformedFilters = {
+        ...transformedFilters,
+        applyPriceFilter: 1,
+        minPrice: formattedMin,
+        maxPrice: formattedMax,
+      };
+    }
+
+    console.log('Filtros transformados enviados al padre:', transformedFilters);
     onFilterChange(transformedFilters);
   };
 
@@ -66,17 +88,7 @@ const SidebarFilters = ({ onFilterChange }) => {
     updateFilters({ ...filters, [filterType]: updated });
   };
 
-  const handlePriceChange = (event) => {
-    const { name, value } = event.target;
-    let newRange = [...filters.priceRange];
-    if (name === 'minPrice') {
-      newRange[0] = parseFloat(value);
-    } else {
-      newRange[1] = parseFloat(value);
-    }
-    updateFilters({ ...filters, priceRange: newRange });
-  };
-
+  // Actualiza el searchText y dispara el updateFilters inmediatamente
   const handleSearchTextChange = (event) => {
     updateFilters({ ...filters, searchText: event.target.value });
   };
@@ -86,18 +98,12 @@ const SidebarFilters = ({ onFilterChange }) => {
   };
 
   return (
-    <div
-      className="sidebar bg-secondary text-white p-3"
-      style={{ width: '200px' }}
-    >
+    <div className="sidebar bg-secondary text-white p-3" style={{ width: '200px' }}>
       {/* Autores */}
       <div className="mb-3">
         <div className="d-flex justify-content-between align-items-center">
           <h6 className="mb-0">Autores</h6>
-          <button
-            className="btn btn-sm btn-light"
-            onClick={() => toggleSection('authors')}
-          >
+          <button className="btn btn-sm btn-light" onClick={() => toggleSection('authors')}>
             {openSections.authors ? '-' : '+'}
           </button>
         </div>
@@ -113,18 +119,13 @@ const SidebarFilters = ({ onFilterChange }) => {
                   checked={filters.author === author.id}
                   onChange={() => handleExclusiveChange('author', author.id)}
                 />
-               <label htmlFor={`author-${author.id}`} className="ms-1">
-                    {author.nombre + ' ' + author.apellido}
-               </label>
-
-            
+                <label htmlFor={`author-${author.id}`} className="ms-1">
+                  {author.nombre + ' ' + author.apellido}
+                </label>
               </div>
             ))}
           </div>
-          
-        )
-        
-        }
+        )}
       </div>
       <hr />
 
@@ -132,10 +133,7 @@ const SidebarFilters = ({ onFilterChange }) => {
       <div className="mb-3">
         <div className="d-flex justify-content-between align-items-center">
           <h6 className="mb-0">Idiomas</h6>
-          <button
-            className="btn btn-sm btn-light"
-            onClick={() => toggleSection('languages')}
-          >
+          <button className="btn btn-sm btn-light" onClick={() => toggleSection('languages')}>
             {openSections.languages ? '-' : '+'}
           </button>
         </div>
@@ -165,10 +163,7 @@ const SidebarFilters = ({ onFilterChange }) => {
       <div className="mb-3">
         <div className="d-flex justify-content-between align-items-center">
           <h6 className="mb-0">Mangas</h6>
-          <button
-            className="btn btn-sm btn-light"
-            onClick={() => toggleSection('mangas')}
-          >
+          <button className="btn btn-sm btn-light" onClick={() => toggleSection('mangas')}>
             {openSections.mangas ? '-' : '+'}
           </button>
         </div>
@@ -198,10 +193,7 @@ const SidebarFilters = ({ onFilterChange }) => {
       <div className="mb-3">
         <div className="d-flex justify-content-between align-items-center">
           <h6 className="mb-0">Editoriales</h6>
-          <button
-            className="btn btn-sm btn-light"
-            onClick={() => toggleSection('editorials')}
-          >
+          <button className="btn btn-sm btn-light" onClick={() => toggleSection('editorials')}>
             {openSections.editorials ? '-' : '+'}
           </button>
         </div>
@@ -215,9 +207,7 @@ const SidebarFilters = ({ onFilterChange }) => {
                   name="editorial"
                   value={editorial.id}
                   checked={filters.editorial === editorial.id}
-                  onChange={() =>
-                    handleExclusiveChange('editorial', editorial.id)
-                  }
+                  onChange={() => handleExclusiveChange('editorial', editorial.id)}
                 />
                 <label htmlFor={`editorial-${editorial.id}`} className="ms-1">
                   {editorial.nombre}
@@ -228,39 +218,6 @@ const SidebarFilters = ({ onFilterChange }) => {
         )}
       </div>
       <hr />
-
-      {/* Rango de precio */}
-      <div className="mb-3">
-        <div className="d-flex justify-content-between align-items-center">
-          <h6 className="mb-0">Precio</h6>
-          <button
-            className="btn btn-sm btn-light"
-            onClick={() => toggleSection('price')}
-          >
-            {openSections.price ? '-' : '+'}
-          </button>
-        </div>
-        {openSections.price && (
-          <div className="d-flex mt-2">
-            <input
-              type="number"
-              name="minPrice"
-              value={filters.priceRange[0]}
-              onChange={handlePriceChange}
-              className="form-control me-2"
-              placeholder="Min"
-            />
-            <input
-              type="number"
-              name="maxPrice"
-              value={filters.priceRange[1]}
-              onChange={handlePriceChange}
-              className="form-control"
-              placeholder="Max"
-            />
-          </div>
-        )}
-      </div>
     </div>
   );
 };

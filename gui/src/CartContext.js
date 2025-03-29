@@ -1,33 +1,38 @@
 // CartContext.js
-import React, { createContext, useReducer } from 'react';
+import React, { createContext, useState } from 'react';
 
-const initialState = {
-  cart: []
-};
-
-export const CartContext = createContext({
-  cart: [],
-  addToCart: () => {}
-});
-
-const cartReducer = (state, action) => {
-  switch (action.type) {
-    case 'ADD_TO_CART':
-      return { ...state, cart: [...state.cart, action.payload] };
-    default:
-      return state;
-  }
-};
+export const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(cartReducer, initialState);
+  const [cart, setCart] = useState([]);
 
-  const addToCart = (item) => {
-    dispatch({ type: 'ADD_TO_CART', payload: item });
+  // Agrega el tomo si no existe; en este ejemplo, si ya existe no incrementamos
+  const addToCart = (tomo) => {
+    setCart((prevCart) => {
+      const existing = prevCart.find((item) => item.id === tomo.id);
+      if (existing) {
+        return prevCart; // Ya está en el carrito, no lo agregamos nuevamente
+      }
+      return [...prevCart, { ...tomo, quantity: 1 }];
+    });
+  };
+
+  // Permite actualizar la cantidad de un item en el carrito
+  const updateCartItem = (id, newQuantity) => {
+    setCart((prevCart) =>
+      prevCart.map((item) =>
+        item.id === id ? { ...item, quantity: newQuantity } : item
+      )
+    );
+  };
+
+  // Limpia el carrito (por ejemplo, después de una compra exitosa)
+  const clearCart = () => {
+    setCart([]);
   };
 
   return (
-    <CartContext.Provider value={{ cart: state.cart, addToCart }}>
+    <CartContext.Provider value={{ cart, addToCart, updateCartItem, clearCart }}>
       {children}
     </CartContext.Provider>
   );

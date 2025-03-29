@@ -321,6 +321,7 @@ class TomoController extends Controller
     // Redireccionar al listado con mensaje de éxito.
     return redirect()->route('tomos.index')->with('success', 'Stocks actualizados correctamente.');
 }
+// TomoController.php (o el controlador que maneje la ruta pública)
 public function indexPublic(Request $request)
 {
     // Iniciar la consulta con las relaciones necesarias, incluyendo géneros
@@ -345,7 +346,6 @@ public function indexPublic(Request $request)
         $editorials = explode(',', $request->get('editorials'));
         $query->whereIn('editorial_id', $editorials);
     }
-
 
     if ($filterType = $request->get('filter_type')) {
         if ($filterType == 'idioma' && $idioma = $request->get('idioma')) {
@@ -374,15 +374,16 @@ public function indexPublic(Request $request)
         });
     }
 
-    // Filtro por rango de precio (se aplica solo si se activa con el botón)
+    // Filtro por rango de precio (aplica solo si se activa con el botón)
     if (
         $request->has('applyPriceFilter') &&
         $request->get('applyPriceFilter') == 1 &&
         $request->has('minPrice') &&
         $request->has('maxPrice')
     ) {
-        $minPrice = $request->get('minPrice');
-        $maxPrice = $request->get('maxPrice');
+        // Convertir los valores a float para comparar numéricamente
+        $minPrice = (float)$request->get('minPrice');
+        $maxPrice = (float)$request->get('maxPrice');
         $query->whereBetween('precio', [$minPrice, $maxPrice]);
     }
 
@@ -396,6 +397,7 @@ public function indexPublic(Request $request)
     // Retorna la estructura paginada. Si no hay resultados, data será un array vacío.
     return response()->json($tomos);
 }
+
 
 
 }
