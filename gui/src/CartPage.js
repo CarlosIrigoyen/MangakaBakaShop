@@ -1,12 +1,12 @@
-// CartPage.js
 import React, { useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { CartContext } from './CartContext';
 import { Button, Image, Table } from 'react-bootstrap';
 
 const CartPage = () => {
   const { cart, updateCartItem, clearCart } = useContext(CartContext);
+  const navigate = useNavigate();
 
-  // Funciones para aumentar/disminuir cantidad
   const handleIncrease = (itemId) => {
     const item = cart.find((item) => item.id === itemId);
     if (item.quantity < item.stock) {
@@ -21,13 +21,11 @@ const CartPage = () => {
     }
   };
 
-  // Calcular el total a pagar (suma de cada ítem: precio * cantidad)
   const totalAmount = cart.reduce(
     (sum, item) => sum + item.precio * item.quantity,
     0
   );
 
-  // Función para procesar la compra: envía la información al backend para actualizar stock
   const handleBuy = async () => {
     try {
       const response = await fetch('http://localhost:8000/api/checkout', {
@@ -54,7 +52,14 @@ const CartPage = () => {
   };
 
   if (cart.length === 0) {
-    return <p className="container my-4">No hay elementos en el carrito.</p>;
+    return (
+      <div className="container my-4 text-center">
+        <p>No hay elementos en el carrito.</p>
+        <Button variant="primary" onClick={() => navigate(-1)}>
+          Volver
+        </Button>
+      </div>
+    );
   }
 
   return (
@@ -112,9 +117,14 @@ const CartPage = () => {
         </tbody>
       </Table>
       <h4>Total a pagar: ${totalAmount.toFixed(2)}</h4>
-      <Button variant="success" onClick={handleBuy}>
-        Comprar
-      </Button>
+      <div>
+        <Button variant="success" onClick={handleBuy}>
+          Comprar
+        </Button>
+        <Button variant="danger" onClick={clearCart} className="ms-2">
+          Vaciar Carrito
+        </Button>
+      </div>
     </div>
   );
 };

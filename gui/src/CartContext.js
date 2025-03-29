@@ -1,32 +1,32 @@
 // CartContext.js
-import React, { createContext, useState } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
 
 export const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
-  const [cart, setCart] = useState([]);
+  // Al iniciar, se verifica si hay un carrito guardado en localStorage
+  const [cart, setCart] = useState(() => {
+    const savedCart = localStorage.getItem('cart');
+    return savedCart ? JSON.parse(savedCart) : [];
+  });
 
-  // Agrega el tomo si no existe; en este ejemplo, si ya existe no incrementamos
-  const addToCart = (tomo) => {
-    setCart((prevCart) => {
-      const existing = prevCart.find((item) => item.id === tomo.id);
-      if (existing) {
-        return prevCart; // Ya está en el carrito, no lo agregamos nuevamente
-      }
-      return [...prevCart, { ...tomo, quantity: 1 }];
-    });
+  // Cada vez que el carrito cambie, se guarda en localStorage
+  useEffect(() => {
+    localStorage.setItem('cart', JSON.stringify(cart));
+  }, [cart]);
+
+  const addToCart = (item) => {
+    // Ejemplo de cómo agregar un ítem, evitando duplicados
+    if (!cart.find(cartItem => cartItem.id === item.id)) {
+      setCart([...cart, { ...item, quantity: 1 }]);
+    }
   };
 
-  // Permite actualizar la cantidad de un item en el carrito
-  const updateCartItem = (id, newQuantity) => {
-    setCart((prevCart) =>
-      prevCart.map((item) =>
-        item.id === id ? { ...item, quantity: newQuantity } : item
-      )
-    );
+  const updateCartItem = (itemId, quantity) => {
+    const updatedCart = cart.map(item => item.id === itemId ? { ...item, quantity } : item);
+    setCart(updatedCart);
   };
 
-  // Limpia el carrito (por ejemplo, después de una compra exitosa)
   const clearCart = () => {
     setCart([]);
   };
